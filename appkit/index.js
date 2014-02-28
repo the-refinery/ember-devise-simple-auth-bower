@@ -138,13 +138,12 @@ define("ember-devise-simple-auth/configuration",
 
     __exports__["default"] = Authenticator;
   });define("ember-devise-simple-auth",
-  ["app","ember-devise-simple-auth/initializers/csrf","ember-devise-simple-auth/utils","ember-devise-simple-auth/initializers/session-route","ember-devise-simple-auth/initializers/authenticator"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-devise-simple-auth/initializers/csrf","ember-devise-simple-auth/utils","ember-devise-simple-auth/initializers/session-route","ember-devise-simple-auth/initializers/authenticator"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    var app = __dependency1__["default"];
-    var tryAction = __dependency3__.tryAction;
-    var SessionRouteInitializer = __dependency4__["default"];
-    var AuthenticatorInitializer = __dependency5__["default"];
+    var tryAction = __dependency2__.tryAction;
+    var SessionRouteInitializer = __dependency3__["default"];
+    var AuthenticatorInitializer = __dependency4__["default"];
 
     function lookupTargetRoute(transition, container) {
       var key = "route:" + transition.targetName
@@ -198,8 +197,8 @@ define("ember-devise-simple-auth/configuration",
       currentSession: Ember.computed.alias("auth.currentSession")
     });
 
-    app.initializer(SessionRouteInitializer);
-    app.initializer(AuthenticatorInitializer);
+    Ember.Application.initializer(SessionRouteInitializer);
+    Ember.Application.initializer(AuthenticatorInitializer);
   });define("app/routes/session",
   ["ember-devise-simple-auth/utils","exports"],
   function(__dependency1__, __exports__) {
