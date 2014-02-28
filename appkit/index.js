@@ -93,18 +93,24 @@ define("ember-devise-simple-auth/configuration",
       },
       // Options: force: true|false // Requires user to have a session
       loadSession: function(storeOrFinder, options) {
+        if(!options.force && this.get("isSignedIn") && this.get("currentSession")) {
+          return Ember.RSVP.resolve(this.get("currentSession"));
+        } else {
+          return this._loadSession(options);
+        }
+      },
+      _loadSession: function () {
         var result,
-            setup = this.setupSession.bind(this);
+            setup = this.setupSession.bind(this),
+            teardown = this.teardownSession.bind(this);
 
         return this.ajax("get", this.get("currentSessionPath"))
-                   .then(setup)
-                   .catch(function(error) {
-                      if(!options.force) {
-                       return Ember.RSVP.resolve();
-                      } else {
-                       return error;
-                      }
-                   });
+               .then(setup)
+               .catch(function(error) {
+                 teardown();
+                 throw error;
+               });
+
       },
       signIn: function() {
         var setup = this.setupSession.bind(this),
@@ -122,7 +128,7 @@ define("ember-devise-simple-auth/configuration",
         var teardown = this.teardownSession.bind(this);
 
         return this.ajax("delete", this.get("signOutPath"))
-                   .then(teardown);
+                   .finally(teardown);
       },
       ajax: function(method, url, data) {
         return new Ember.RSVP.Promise(function(resolve) {
