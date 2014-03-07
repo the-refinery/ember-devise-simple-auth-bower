@@ -146,8 +146,10 @@ define("ember-devise-simple-auth/configuration",
       },
       // Options: force: true|false // Requires user to have a session
       loadSession: function(storeOrFinder, options) {
-        if(!options.force && this.get("isSignedIn") && this.get("currentSession")) {
+        if(this.get("isSignedIn") && this.get("currentSession")) {
           return Ember.RSVP.resolve(this.get("currentSession"));
+        } else if(options.skip) {
+          return Ember.RSVP.resolve(null);
         } else {
           return this._loadSession(options);
         }
@@ -212,11 +214,10 @@ define("ember-devise-simple-auth/configuration",
     Ember.Route.reopen({
       beforeModel: function(transition) {
         var targetRoute = lookupTargetRoute(transition, this.container),
-            requiresAuth = !targetRoute.skipsAuthentication,
             _this = this;
 
         return this.get("authenticator")
-                   .loadSession(this.get("store"), {force: requiresAuth})
+                   .loadSession(this.get("store"), {skip: targetRoute.skipsAuthentication})
                    .catch(function() {
                      _this.transitionTo("session");
                    });
