@@ -135,6 +135,14 @@ define("ember-devise-simple-auth/configuration",
       password: null,
       currentSession: null,
       isSignedIn: false,
+      isValid: Ember.computed.not("isInvalid"),
+      isInvalid: Ember.computed.or("emailInvalid", "passwordInvalid"),
+      emailWillChange: function() {
+        this.set("emailInvalid", false);
+      }.observesBefore("email"),
+      passwordWillChange: function() {
+        this.set("passwordInvalid", false);
+      }.observesBefore("password"),
       setupSession: function(session) {
         this.set("isSignedIn", true)
              .set("currentSession", session);
@@ -144,7 +152,7 @@ define("ember-devise-simple-auth/configuration",
         this.set("isSignedIn", false)
             .set("currentSession", null);
       },
-      // Options: force: true|false // Requires user to have a session
+      // Options: skip: true|false // Doesn't make ajax request for session
       loadSession: function(storeOrFinder, options) {
         if(this.get("isSignedIn") && this.get("currentSession")) {
           return Ember.RSVP.resolve(this.get("currentSession"));
@@ -174,7 +182,7 @@ define("ember-devise-simple-auth/configuration",
                 email: this.get("email"),
                 password: this.get("password")
               }
-            }
+            };
 
         return this.ajax("post", this.get("signInPath"), data)
                    .then(setup);
@@ -207,7 +215,7 @@ define("ember-devise-simple-auth/configuration",
     var AuthenticatorInitializer = __dependency4__["default"];
 
     function lookupTargetRoute(transition, container) {
-      var key = "route:" + transition.targetName
+      var key = "route:" + transition.targetName;
       return container.lookup(key);
     }
 
@@ -254,7 +262,8 @@ define("ember-devise-simple-auth/configuration",
 
     Ember.Controller.reopen({
       isSignedIn: Ember.computed.alias("auth.isSignedIn"),
-      currentSession: Ember.computed.alias("auth.currentSession")
+      currentSession: Ember.computed.alias("auth.currentSession"),
+      invalidCredentials: Ember.computed.alias("auth.isInvalid")
     });
 
     Ember.Application.initializer(SessionRouteInitializer);
@@ -270,9 +279,30 @@ define("ember-devise-simple-auth/configuration",
       model: function() {
         return this.get("authenticator");
       },
+      validateCredentials: function() {
+        return this.get("authenticator.isValid");
+      },
       actions: {
+        validateCredentials: function() {
+          if(Ember.isEmpty(this.get("authenticator.email"))) {
+            this.set("authenticator.emailInvalid", true);
+          }
+
+          if(Ember.isEmpty(this.get("authenticator.password"))) {
+            this.set("authenticator.passwordInvalid", true);
+          }
+
+          return true;
+        },
         signIn: function() {
           var route = this;
+
+          this.send("validateCredentials");
+
+          if(this.get("authenticator.isInvalid")) {
+            return;
+          }
+
           this.get("authenticator").signIn().
             then(function(session) {
               tryAction(route, "validSignIn", session);
@@ -283,7 +313,7 @@ define("ember-devise-simple-auth/configuration",
             });
         }
       }
-    })
+    });
 
 
     __exports__["default"] = SessionRoute;
