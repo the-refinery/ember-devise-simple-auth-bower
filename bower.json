@@ -6,7 +6,7 @@
   ],
   "description": "Bare bones Devise integration for Ember.js. Uses as much of the stock Devise sessions controller as possible. Make sure you install the companion gem as well.",
   "license": "MIT",
-  "main": "index.js",
+  "main": "dist/appkit/index.js",
   "ignore": [
     "**/.*",
     "node_modules",
