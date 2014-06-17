@@ -69,7 +69,7 @@ define("ember-devise-simple-auth/configuration",
     };
 
     __exports__.getSetting = getSetting;
-  });define("ember-devise-simple-auth/initializers/authenticator",
+  });define("app/initializers/authenticator",
   ["app/models/authenticator","ember-devise-simple-auth/configuration","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -98,7 +98,7 @@ define("ember-devise-simple-auth/configuration",
     };
 
     __exports__["default"] = initializer;
-  });define("ember-devise-simple-auth/initializers/csrf",
+  });define("app/initializers/csrf",
   [],
   function() {
     "use strict";
@@ -113,7 +113,7 @@ define("ember-devise-simple-auth/configuration",
         $('meta[name="csrf-token"]').attr('content', csrf_token);
       }
     });
-  });define("ember-devise-simple-auth/initializers/session-route",
+  });define("app/initializers/session-route",
   ["ember-devise-simple-auth/configuration","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -276,9 +276,6 @@ define("ember-devise-simple-auth/configuration",
       currentUser: Ember.computed.alias("auth.currentUser"),
       invalidCredentials: Ember.computed.alias("auth.isInvalid")
     });
-
-    Ember.Application.initializer(SessionRouteInitializer);
-    Ember.Application.initializer(AuthenticatorInitializer);
   });define("app/routes/session",
   ["ember-devise-simple-auth/utils","exports"],
   function(__dependency1__, __exports__) {
